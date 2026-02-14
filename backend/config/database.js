@@ -32,18 +32,31 @@ async function makePool() {
   const encodedPassword = encodeURIComponent(PASSWORD);
   const connectionString = `postgresql://${USER}:${encodedPassword}@${resolvedHost}:${PORT}/${DATABASE}`;
 
+  // SSL configuration: required in production, optional in development
+  const isProduction = process.env.NODE_ENV === 'production';
+  const sslConfig = isProduction 
+    ? { rejectUnauthorized: true }
+    : { rejectUnauthorized: false };
+
   const pool = new Pool({
     connectionString,
-    max: 10,
-    ssl: { rejectUnauthorized: false }
+    max: isProduction ? 20 : 10,
+    min: isProduction ? 2 : 1,
+    idleTimeoutMillis: isProduction ? 30000 : 10000,
+    connectionTimeoutMillis: 5000,
+    ssl: sslConfig
   });
 
   // Test a simple query to fail fast if connection invalid
   try {
     await pool.query('SELECT 1');
+    console.log(`[${new Date().toISOString()}] Database connection successful`);
   } catch (err) {
-    // don't crash module load; surface error when used
-    console.error('Postgres pool test query failed:', err && err.code ? err.code : err);
+    const errorMsg = err && err.code ? err.code : String(err);
+    console.error(`[${new Date().toISOString()}] Database connection failed:`, errorMsg);
+    if (isProduction) {
+      throw new Error(`Failed to connect to database: ${errorMsg}`);
+    }
   }
 
   return pool;

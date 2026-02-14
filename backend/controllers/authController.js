@@ -26,7 +26,11 @@ const register = async (req, res) => {
     const userId = await studentModel.createUser(name, email, hashedPassword, branch);
 
     // Generate token
-    const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET || 'your_jwt_secret_key_here', {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not configured');
+    }
+    const token = jwt.sign({ id: userId, email }, jwtSecret, {
       expiresIn: '7d'
     });
 
@@ -64,7 +68,11 @@ const login = async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'your_jwt_secret_key_here', {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not configured');
+    }
+    const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret, {
       expiresIn: '7d'
     });
 

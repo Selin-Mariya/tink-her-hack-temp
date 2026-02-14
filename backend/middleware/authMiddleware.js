@@ -8,9 +8,18 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_key_here', (err, user) => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('JWT_SECRET is not configured');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  jwt.verify(token, jwtSecret, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      if (err.name === 'TokenExpiredError') {
+        return res.status(403).json({ error: 'Token expired' });
+      }
+      return res.status(403).json({ error: 'Invalid token' });
     }
     req.user = user;
     next();
