@@ -89,6 +89,66 @@ const findMatches = async (req, res) => {
   }
 };
 
+/**
+ * Find users matching a specific client requirement
+ * Returns users sorted by match percentage (highest first)
+ */
+const findUsersForRequirement = async (req, res) => {
+  try {
+    const { requirementId } = req.params;
+    const requirementModel = require('../models/requirementModel');
+    const { calculateRequirementMatch } = require('../utils/matchingEngine');
+
+    // Get requirement with all required skills
+    const requirement = await requirementModel.getRequirementWithSkills(requirementId);
+    if (!requirement) {
+      return res.status(404).json({ error: 'Requirement not found' });
+    }
+
+    // Get all users
+    const allUsers = await studentModel.getAllUsersExcept(null); // null = get all users, but we need to modify getAllUsersExcept
+
+    // Calculate match for each user
+    const matchesWithScores = await Promise.all(
+      allUsers.map(async (user) => {
+        const userSkills = await skillModel.getSkillsByUserId(user.id);
+        const { matchPercentage, matchedSkills, category } = calculateRequirementMatch(
+          requirement.required_skills,
+          userSkills
+        );
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          branch: user.branch,
+          matchPercentage,
+          matchCategory: category,
+          matchedSkills,
+          totalRequiredSkills: requirement.required_skills.length
+        };
+      })
+    );
+
+    // Sort by match percentage (highest first)
+    const sortedMatches = matchesWithScores.sort((a, b) => b.matchPercentage - a.matchPercentage);
+
+    res.json({
+      message: 'Requirement-based matches found',
+      requirement: {
+        id: requirement.id,
+        project_title: requirement.project_title,
+        required_skills: requirement.required_skills
+      },
+      matches: sortedMatches
+    });
+  } catch (error) {
+    console.error('Find requirement matches error:', error);
+    res.status(500).json({ error: 'Failed to find matches' });
+  }
+};
+
 module.exports = {
-  findMatches
+  findMatches,
+  findUsersForRequirement
 };

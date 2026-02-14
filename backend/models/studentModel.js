@@ -1,39 +1,42 @@
-const pool = require('../config/database');
+const supabase = require('../config/supabase');
 
 // Get user by email
 const getUserByEmail = async (email) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-  return rows[0];
+  const { data, error } = await supabase.from('users').select('*').eq('email', email).limit(1).maybeSingle();
+  if (error) throw error;
+  return data || null;
 };
 
 // Get user by ID
 const getUserById = async (id) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-  return rows[0];
+  const { data, error } = await supabase.from('users').select('*').eq('id', id).limit(1).maybeSingle();
+  if (error) throw error;
+  return data || null;
 };
 
 // Get all users except the current user
 const getAllUsersExcept = async (userId) => {
-  const [rows] = await pool.query('SELECT id, name, email, branch, created_at FROM users WHERE id != ? ORDER BY created_at DESC', [userId]);
-  return rows;
+  let query = supabase.from('users').select('id, name, email, branch, created_at');
+  if (userId !== null) {
+    query = query.neq('id', userId);
+  }
+  const { data, error } = await query.order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
 };
 
 // Create user
 const createUser = async (name, email, hashedPassword, branch) => {
-  const [result] = await pool.query(
-    'INSERT INTO users (name, email, password, branch) VALUES (?, ?, ?, ?)',
-    [name, email, hashedPassword, branch]
-  );
-  return result.insertId;
+  const { data, error } = await supabase.from('users').insert([{ name, email, password: hashedPassword, branch }]).select('id').single();
+  if (error) throw error;
+  return data.id;
 };
 
 // Update user profile
 const updateUser = async (id, name, branch) => {
-  const [result] = await pool.query(
-    'UPDATE users SET name = ?, branch = ? WHERE id = ?',
-    [name, branch, id]
-  );
-  return result.affectedRows > 0;
+  const { error } = await supabase.from('users').update({ name, branch }).eq('id', id);
+  if (error) throw error;
+  return true;
 };
 
 module.exports = {

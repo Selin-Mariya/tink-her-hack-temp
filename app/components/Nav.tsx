@@ -12,6 +12,7 @@ export default function Nav() {
           <Link href="/register" className="text-sm text-gray-700 hover:underline">Register</Link>
           <Link href="/login" className="text-sm text-gray-700 hover:underline">Login</Link>
           <Link href="/skills" className="text-sm text-gray-700 hover:underline">Skills</Link>
+          <Link href="/interests" className="text-sm text-gray-700 hover:underline">Interests</Link>
           <Link href="/matches" className="text-sm text-gray-700 hover:underline">Matches</Link>
         </div>
       </div>

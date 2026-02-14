@@ -1,30 +1,24 @@
-const pool = require('../config/database');
+const supabase = require('../config/supabase');
 
 // Add availability for user
 const addAvailability = async (userId, timeSlot) => {
-  const [result] = await pool.query(
-    'INSERT INTO availability (user_id, time_slot) VALUES (?, ?)',
-    [userId, timeSlot]
-  );
-  return result.insertId;
+  const { data, error } = await supabase.from('availability').insert([{ user_id: userId, time_slot: timeSlot }]).select('id').single();
+  if (error) throw error;
+  return data.id;
 };
 
 // Get all availability for user
 const getAvailabilityByUserId = async (userId) => {
-  const [rows] = await pool.query(
-    'SELECT * FROM availability WHERE user_id = ? ORDER BY created_at DESC',
-    [userId]
-  );
-  return rows;
+  const { data, error } = await supabase.from('availability').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
 };
 
 // Delete availability
 const deleteAvailability = async (availabilityId) => {
-  const [result] = await pool.query(
-    'DELETE FROM availability WHERE id = ?',
-    [availabilityId]
-  );
-  return result.affectedRows > 0;
+  const { error } = await supabase.from('availability').delete().eq('id', availabilityId);
+  if (error) throw error;
+  return true;
 };
 
 module.exports = {

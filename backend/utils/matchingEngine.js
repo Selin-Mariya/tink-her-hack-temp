@@ -132,10 +132,38 @@ const findMatchingSkills = (userSkills, candidateSkills) => {
   );
 };
 
+/**
+ * Calculate requirement-based match percentage
+ * @param {Array} requiredSkills - Skills required by client (lowercase)
+ * @param {Array} userSkills - User's skills array
+ * @returns {Object} { matchPercentage, matchedSkills, category }
+ */
+const calculateRequirementMatch = (requiredSkills, userSkills) => {
+  if (!requiredSkills || requiredSkills.length === 0) {
+    return { matchPercentage: 0, matchedSkills: [], category: 'No Requirements' };
+  }
+
+  const userSkillNames = userSkills.map(s => s.skill_name.toLowerCase());
+
+  // Find matching skills
+  const matchedSkills = requiredSkills.filter(skill => userSkillNames.includes(skill));
+
+  // Calculate percentage
+  const matchPercentage = Math.round((matchedSkills.length / requiredSkills.length) * 100);
+
+  // Determine category
+  let category = 'Weak Match';
+  if (matchPercentage >= 70) category = 'Strong Match';
+  else if (matchPercentage >= 40) category = 'Moderate Match';
+
+  return { matchPercentage, matchedSkills, category };
+};
+
 module.exports = {
   calculateSkillMatch,
   calculateInterestMatch,
   calculateAvailabilityMatch,
   calculateCompatibilityScore,
-  findMatchingSkills
+  findMatchingSkills,
+  calculateRequirementMatch
 };

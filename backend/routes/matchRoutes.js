@@ -5,5 +5,6 @@ const { authenticateToken } = require('../middleware/authMiddleware');
 
 // All match routes require authentication
 router.get('/', authenticateToken, matchController.findMatches);
+router.get('/requirement/:requirementId', authenticateToken, matchController.findUsersForRequirement);
 
 module.exports = router;

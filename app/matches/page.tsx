@@ -20,6 +20,10 @@ type Match = {
   shared_skills?: string;
   commonInterests?: string;
   commonAvailability?: string;
+  matchPercentage?: number;
+  matchCategory?: string;
+  matchedSkills?: string[];
+  totalRequiredSkills?: number;
 };
 
 type User = { id: number; name: string; email: string; branch: string };
@@ -178,60 +182,37 @@ export default function MatchesPage() {
                     )}
                   </div>
 
-                  {/* Skill Match Details */}
-                  {(match.skillMatch !== undefined || match.interestMatch !== undefined) && (
+                  {/* Match Percentage & Category */}
+                  {match.matchPercentage !== undefined && (
                     <div className="mb-4 pb-4 border-b border-gray-200">
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        {match.skillMatch !== undefined && (
-                          <div>
-                            <p className="text-gray-600">Skills Match</p>
-                            <p className="font-bold text-cyan-400">{match.skillMatch}%</p>
-                          </div>
-                        )}
-                        {match.interestMatch !== undefined && (
-                          <div>
-                            <p className="text-gray-600">Interests Match</p>
-                            <p className="font-bold text-cyan-400">{match.interestMatch}%</p>
-                          </div>
-                        )}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-gray-600 text-sm">Match Percentage</p>
+                          <p className="font-bold text-lg text-cyan-400">{match.matchPercentage}%</p>
+                        </div>
+                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                          match.matchCategory === 'Strong Match' ? 'bg-green-100 text-green-800' :
+                          match.matchCategory === 'Moderate Match' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {match.matchCategory}
+                        </span>
                       </div>
                     </div>
                   )}
 
-                  {/* Matching Skills */}
-                  {(match.matchingSkills || match.shared_skills) && (
+                  {/* Matched Skills */}
+                  {match.matchedSkills && match.matchedSkills.length > 0 && (
                     <div className="mb-4 pb-4 border-b border-gray-200">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">Shared Skills:</p>
+                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                        Matched Skills ({match.matchedSkills.length}/{match.totalRequiredSkills})
+                      </p>
                       <div className="flex flex-wrap gap-2">
-                        {Array.isArray(match.matchingSkills) ? (
-                          match.matchingSkills.length > 0 ? (
-                            match.matchingSkills.map((skill, i) => (
-                              skill && (
-                                <span
-                                  key={i}
-                                  className="px-3 py-1 bg-cyan-200 text-cyan-800 text-xs font-semibold rounded-full"
-                                >
-                                  {typeof skill === "string" ? skill : JSON.stringify(skill)}
-                                </span>
-                              )
-                            ))
-                          ) : (
-                            <span className="text-sm text-gray-500">No shared skills</span>
-                          )
-                        ) : typeof (match.matchingSkills || match.shared_skills) === "string" && (match.matchingSkills || match.shared_skills).length > 0 ? (
-                            (match.matchingSkills || match.shared_skills).split(",").map((skill, i) => (
-                            skill.trim() && (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-cyan-200 text-cyan-800 text-xs font-semibold rounded-full"
-                              >
-                                {skill.trim()}
-                              </span>
-                            )
-                          ))
-                        ) : (
-                          <span className="text-sm text-gray-500">No shared skills</span>
-                        )}
+                        {match.matchedSkills.map((skill, i) => (
+                          <span key={i} className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                            {skill}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -289,7 +270,7 @@ export default function MatchesPage() {
             ← Back to Skills
           </Link>
           <span className="text-white">•</span>
-          <Link href="/register" className="text-white hover:underline font-semibold">
+          <Link href="/interests" className="text-white hover:underline font-semibold">
             View Interests →
           </Link>
         </div>

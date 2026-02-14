@@ -1,30 +1,24 @@
-const pool = require('../config/database');
+const supabase = require('../config/supabase');
 
 // Add interest for user
 const addInterest = async (userId, interestName) => {
-  const [result] = await pool.query(
-    'INSERT INTO interests (user_id, interest_name) VALUES (?, ?)',
-    [userId, interestName]
-  );
-  return result.insertId;
+  const { data, error } = await supabase.from('interests').insert([{ user_id: userId, interest_name: interestName }]).select('id').single();
+  if (error) throw error;
+  return data.id;
 };
 
 // Get all interests for user
 const getInterestsByUserId = async (userId) => {
-  const [rows] = await pool.query(
-    'SELECT * FROM interests WHERE user_id = ? ORDER BY created_at DESC',
-    [userId]
-  );
-  return rows;
+  const { data, error } = await supabase.from('interests').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
 };
 
 // Delete interest
 const deleteInterest = async (interestId) => {
-  const [result] = await pool.query(
-    'DELETE FROM interests WHERE id = ?',
-    [interestId]
-  );
-  return result.affectedRows > 0;
+  const { error } = await supabase.from('interests').delete().eq('id', interestId);
+  if (error) throw error;
+  return true;
 };
 
 module.exports = {

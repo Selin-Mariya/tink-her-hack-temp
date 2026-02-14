@@ -1,39 +1,31 @@
-const pool = require('../config/database');
+const supabase = require('../config/supabase');
 
 // Add skill for user
 const addSkill = async (userId, skillName, skillLevel) => {
-  const [result] = await pool.query(
-    'INSERT INTO skills (user_id, skill_name, skill_level) VALUES (?, ?, ?)',
-    [userId, skillName, skillLevel]
-  );
-  return result.insertId;
+  const { data, error } = await supabase.from('skills').insert([{ user_id: userId, skill_name: skillName, skill_level: skillLevel }]).select('id').single();
+  if (error) throw error;
+  return data.id;
 };
 
 // Get all skills for user
 const getSkillsByUserId = async (userId) => {
-  const [rows] = await pool.query(
-    'SELECT * FROM skills WHERE user_id = ? ORDER BY created_at DESC',
-    [userId]
-  );
-  return rows;
+  const { data, error } = await supabase.from('skills').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
 };
 
 // Update skill
 const updateSkill = async (skillId, skillName, skillLevel) => {
-  const [result] = await pool.query(
-    'UPDATE skills SET skill_name = ?, skill_level = ? WHERE id = ?',
-    [skillName, skillLevel, skillId]
-  );
-  return result.affectedRows > 0;
+  const { error } = await supabase.from('skills').update({ skill_name: skillName, skill_level: skillLevel }).eq('id', skillId);
+  if (error) throw error;
+  return true;
 };
 
 // Delete skill
 const deleteSkill = async (skillId) => {
-  const [result] = await pool.query(
-    'DELETE FROM skills WHERE id = ?',
-    [skillId]
-  );
-  return result.affectedRows > 0;
+  const { error } = await supabase.from('skills').delete().eq('id', skillId);
+  if (error) throw error;
+  return true;
 };
 
 module.exports = {
