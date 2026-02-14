@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Campus Skill Match — Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand">🎓 Campus Skill Match</div>
+        <nav>
+          <a href="#home">Home</a>
+          <a href="#dashboard">Dashboard</a>
+          <a href="#skills">Skills</a>
+          <a href="#matches" class="active">Matches</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>Dashboard</h1>
+        <p class="lede">Discover students with complementary skills and form teams faster. Compatibility scores help prioritize.</p>
+      </section>
+
+      <section id="controls" class="controls">
+        <input id="search" placeholder="Search by name or skill" />
+        <select id="filter">
+          <option value="all">All</option>
+          <option value="high">Compatibility ≥ 75%</option>
+          <option value="medium">50%–74%</option>
+          <option value="low">&lt;50%</option>
+        </select>
+      </section>
+
+      <section id="cards" class="cards" aria-live="polite">
+        <!-- Cards inserted by app.js -->
+      </section>
+
+      <section id="empty" class="empty hidden">
+        <p>No matches found.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© Campus Skill Match</div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Skill-Match Engine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Login/Register Form -->
+        <div id="authPage" class="page active">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h1 class="app-title">Campus Skill-Match Engine</h1>
+                    <p class="app-subtitle">Connect, Share, and Grow Together</p>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="login">Login</button>
+                        <button class="tab-btn" data-tab="register">Register</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" class="auth-form active">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <div id="loginError" class="error-message"></div>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" id="registerName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">Email</label>
+                            <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerBranch">Branch/Department</label>
+                            <input type="text" id="registerBranch" placeholder="e.g., Computer Science" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" placeholder="Create a password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <div id="registerError" class="error-message"></div>
+                    </form>
+                </div>
+            </div>
+        </body>
+
+        <!-- Dashboard -->
+        <div id="dashboardPage" class="page">
+            <nav class="navbar">
+                <div class="nav-container">
+                    <h2 class="nav-title">Campus Skill-Match</h2>
+                    <div class="nav-menu">
+                        <button class="nav-btn active" data-section="profile">Profile</button>
+                        <button class="nav-btn" data-section="skills">Skills</button>
+                        <button class="nav-btn" data-section="interests">Interests</button>
+                        <button class="nav-btn" data-section="availability">Availability</button>
+                        <button class="nav-btn" data-section="match">Find Teammates</button>
+                        <button class="nav-btn" data-section="team">My Teams</button>
+                        <button class="nav-btn logout-btn" id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="dashboard-container">
+                <!-- Profile Section -->
+                <section id="profileSection" class="section active">
+                    <div class="section-header">
+                        <h2>My Profile</h2>
+                    </div>
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <p><strong>Name:</strong> <span id="profileName"></span></p>
+                            <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                            <p><strong>Branch:</strong> <span id="profileBranch"></span></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Skills Section -->
+                <section id="skillsSection" class="section">
+                    <div class="section-header">
+                        <h2>My Skills</h2>
+                        <button class="btn btn-secondary" id="addSkillBtn">+ Add Skill</button>
+                    </div>
+
+                    <div id="addSkillForm" class="form-container hidden">
+                        <h3>Add New Skill</h3>
+                        <form class="skill-form">
+                            <div class="form-group">
+                                <label for="skillName">Skill Name</label>
+                                <input type="text" id="skillName" placeholder="e.g., Python" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="skillLevel">Proficiency Level</label>
+                                <select id="skillLevel" required>
+                                    <option value="">Select Level</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Skill</button>
+                            <button type="button" class="btn btn-secondary" id="cancelSkillBtn">Cancel</button>
+                        </form>
+                    </div>
+
+                    <div id="skillsList" class="items-grid">
+                        <!-- Skills will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Interests Section -->
+                <section id="interestsSection" class="section">
+                    <div class="section-header">
+                        <h2>My Interests</h2>
+                        <button class="btn btn-secondary" id="addInterestBtn">+ Add Interest</button>
+                    </div>
+
+                    <div id="addInterestForm" class="form-container hidden">
+                        <h3>Add New Interest</h3>
+                        <form class="interest-form">
+                            <div class="form-group">
+                                <label for="interestName">Interest</label>
+                                <select id="interestName" required>
+                                    <option value="">Select Interest</option>
+                                    <option value="AI">Artificial Intelligence</option>
+                                    <option value="Web Dev">Web Development</option>
+                                    <option value="Cybersecurity">Cybersecurity</option>
+                                    <option value="Machine Learning">Machine Learning</option>
+                                    <option value="Data Science">Data Science</option>
+                                    <option value="Mobile Dev">Mobile Development</option>
+                                    <option value="Cloud Computing">Cloud Computing</option>
+                                    <option value="DevOps">DevOps</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Interest</button>
+                            <button type="button" class="btn btn-secondary" id="cancelInterestBtn">Cancel</button>
+                        </form>
+                    </div>
+
+                    <div id="interestsList" class="items-grid">
+                        <!-- Interests will be loaded here -->
+                    </div>
+                </section>
+
+        <!-- Availability Section -->
+                <section id="availabilitySection" class="section">
+                    <div class="section-header">
+                        <h2>My Availability</h2>
+                        <button class="btn btn-secondary" id="addAvailabilityBtn">+ Add Slot</button>
+                    </div>
+
+                    <div id="addAvailabilityForm" class="form-container hidden">
+                        <h3>Add Availability Slot</h3>
+                        <form class="availability-form">
+                            <div class="form-group">
+                                <label for="availabilitySlot">Time Slot</label>
+                                <select id="availabilitySlot" required>
+                                    <option value="">Select Time Slot</option>
+                                    <option value="Morning">Morning</option>
+                                    <option value="Afternoon">Afternoon</option>
+                                    <option value="Evening">Evening</option>
+                                    <option value="Weekend">Weekend</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Slot</button>
+                            <button type="button" class="btn btn-secondary" id="cancelAvailabilityBtn">Cancel</button>
+                        </form>
+                    </div>
+
+                    <div id="availabilityList" class="items-grid">
+                        <!-- Availability will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Find Teammates Section -->
+                <section id="matchSection" class="section">
+                    <div class="section-header">
+                        <h2>Find Teammates</h2>
+                        <button class="btn btn-primary" id="findMatchesBtn">🔍 Find Matches</button>
+                    </div>
+
+                    <div id="matchesContainer" class="matches-container">
+                        <!-- Match results will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Create Team Section -->
+                <section id="teamSection" class="section">
+                    <div class="section-header">
+                        <h2>My Teams</h2>
+                    </div>
+
+                    <div id="createTeamForm" class="form-container hidden">
+                        <h3>Create New Team</h3>
+                        <form class="team-form">
+                            <div class="form-group">
+                                <label for="teamName">Team Name</label>
+                                <input type="text" id="teamName" placeholder="e.g., AI Project Team" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Selected Members:</label>
+                                <div id="selectedMembersList" class="selected-members-list">
+                                    <!-- Selected members will appear here -->
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Create Team</button>
+                                <button type="button" class="btn btn-secondary" id="cancelTeamBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="teamsList" class="teams-list">
+                        <!-- Teams will be loaded here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
